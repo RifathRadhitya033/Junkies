@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Makanan Surplus</title>
+    <style>
+        /* CSS Reset & Dasar */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #e0e0e0; }
+        
+        /* Container untuk mensimulasikan layar iPhone */
+        .mobile-container {
+            width: 390px;
+            height: 844px;
+            background-color: #fafafa;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 40px;
+            overflow: hidden;
+            border: 8px solid #333;
+        }
+
+        /* Styling Halaman */
+        .page {
+            display: none; /* Disembunyikan secara default */
+            height: 100%;
+            width: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 80px; /* Jarak untuk bottom nav */
+            background-color: #fdfaf6;
+        }
+        .page.active {
+            display: block; /* Ditampilkan saat aktif */
+        }
+
+        /* Utility Classes & Header */
+        .header { display: flex; align-items: center; margin-bottom: 20px; font-weight: bold; font-size: 18px;}
+        .back-btn { font-size: 20px; cursor: pointer; margin-right: 15px; background: none; border: none; font-weight: bold;}
+        .title-center { flex-grow: 1; text-align: center; }
+        
+        /* Komponen UI Spesifik (Disederhanakan untuk kerangka) */
+        .search-bar { background: #fce4e4; border-radius: 20px; padding: 10px; text-align: center; color: #d37a7a; margin-bottom: 15px; font-size: 12px;}
+        .promo-banner { background: linear-gradient(to right, #fbd3e9, #bbffed); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        .card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; gap: 15px;}
+        .card img { width: 60px; height: 60px; border-radius: 10px; background-color: #ddd; object-fit: cover;}
+        
+        .btn-primary { background: #a8d5ba; color: #333; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; text-align: center;}
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-radius: 0 0 32px 32px;
+        }
+        .nav-item { text-align: center; font-size: 12px; cursor: pointer; color: #888; flex: 1; padding: 10px;}
+        .nav-item.active-nav { color: #d37a7a; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <div id="page-beranda" class="page active">
+            <div class="header" style="justify-content: center;">Beranda</div>
+            <div class="search-bar">Mau selamatkan produk apa hari ini?</div>
+            <div class="promo-banner">
+                <h3>PROMO MERIAH AKHIR PEKAN!</h3>
+                <p style="font-size: 12px; color: #555;">Diskon s.d 50%</p>
+            </div>
+            <h4 style="margin-bottom: 10px;">Disekitar Anda</h4>
+            <div class="card" onclick="goToPage('page-restoran')">
+                <img src="https://via.placeholder.com/60" alt="Roti">
+                <div>
+                    <strong>Roti Bakar 41</strong>
+                    <div style="font-size: 12px; color: #888;">Jatimulyo - Jarak 1.5 km</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-daftar-pesanan" class="page">
+            <div class="header">
+                <span class="title-center">Daftar Pesanan</span>
+            </div>
+            <div class="card" onclick="goToPage('page-atur-pesanan')">
+                <img src="https://via.placeholder.com/60" alt="Roti">
+                <div>
+                    <strong>Roti bakar selai blueberry</strong>
+                    <div style="font-size: 12px; color: #888;">Rp 16.000</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-profil" class="page">
+            <div class="header">
+                <span class="title-center">Profil</span>
+            </div>
+            <div class="card" style="background: #fdfaf6; border: 1px solid #eee;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: #ccc;"></div>
+                <div>
+                    <strong>Justin Bieber</strong>
+                    <div style="font-size: 12px; color: #888;">Yuk, selamatkan lebih banyak makanan!</div>
+                </div>
+            </div>
+            <div style="background: #fce4e4; padding: 15px; border-radius: 15px; margin-top: 15px;">
+                <strong>Target bulan ini</strong>
+                <p style="font-size: 12px;">Selamatkan 10 item! (6/10)</p>
+            </div>
+        </div>
+
+        <div id="page-restoran" class="page">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()">&#8592;</button>
+            </div>
+            <h2>Roti Bakar 41 - Jatimulyo</h2>
+            <p style="font-size: 12px; color: #888; margin-bottom: 20px;">⭐ 4.9 | Jarak 1.3 km</p>
+            
+            <h4 style="margin-bottom: 10px;">Menu</h4>
+            <div class="card" onclick="goToPage('page-atur-pesanan')">
+                <img src="https://via.placeholder.com/60" alt="Menu">
+                <div style="flex-grow: 1;">
+                    <strong>Roti bakar selai blueberry</strong>
+                    <div style="font-size: 12px; color: #888;">Rp 16.000</div>
+                </div>
+                <button style="border:none; background:#fce4e4; color:#d37a7a; border-radius:50%; width:25px; height:25px;">+</button>
+            </div>
+        </div>
+
+        <div id="page-atur-pesanan" class="page">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()">&#8592;</button>
+                <span class="title-center">Atur Pesanan</span>
+            </div>
+            
+            <div class="card" style="background: #e8f4ec; justify-content: space-between;">
+                <strong>Ambil Sendiri</strong>
+                <strong style="color: #ccc;">Diantar</strong>
+            </div>
+
+            <div class="card">
+                <div style="flex-grow: 1;">
+                    <strong>Roti bakar selai blueberry</strong>
+                    <div style="font-size: 12px; color: #888;">Rp 16.000</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px;">
+                    <span>Total</span>
+                    <strong>Rp 20.800</strong>
+                </div>
+            </div>
+
+            <div style="position: absolute; bottom: 80px; left: 20px; right: 20px;">
+                <button class="btn-primary" onclick="goToPage('page-pembayaran')">Bayar Sekarang - 20.800</button>
+            </div>
+        </div>
+
+        <div id="page-pembayaran" class="page">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()">&#8592;</button>
+                <span class="title-center">Pembayaran</span>
+            </div>
+            
+            <div class="card">
+                <div>
+                    <strong>Rinci Pesanan</strong>
+                    <p style="font-size: 12px;">Total: Rp 20.800</p>
+                </div>
+            </div>
+
+            <h4 style="margin: 15px 0 10px 0;">Metode Pembayaran</h4>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="background: #fce4e4; padding: 10px; border-radius: 8px;">OVO</div>
+                <div style="background: #fce4e4; padding: 10px; border-radius: 8px;">DANA</div>
+                <div style="background: #fce4e4; padding: 10px; border-radius: 8px;">GOPAY</div>
+                <div style="background: #fce4e4; padding: 10px; border-radius: 8px;">QRIS</div>
+            </div>
+
+            <div style="position: absolute; bottom: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 12px;">TOTAL</div>
+                    <strong>Rp 20.800</strong>
+                </div>
+                <button class="btn-primary" style="width: auto; padding: 10px 30px;">BAYAR</button>
+            </div>
+        </div>
+
+        <div id="bottom-navbar" class="bottom-nav">
+            <div class="nav-item active-nav" onclick="navBottomClick('page-beranda', this)">🏠<br>Beranda</div>
+            <div class="nav-item" onclick="navBottomClick('page-daftar-pesanan', this)">🛍️<br>Pesanan</div>
+            <div class="nav-item" onclick="navBottomClick('page-profil', this)">👤<br>Profil</div>
+        </div>
+
+    </div>
+
+    <script>
+        // Array untuk menyimpan riwayat navigasi agar tombol 'back' berfungsi
+        let historyStack = ['page-beranda'];
+
+        // Fungsi utama untuk pindah halaman
+        function goToPage(pageId) {
+            // Sembunyikan semua halaman
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // Tampilkan halaman tujuan
+            document.getElementById(pageId).classList.add('active');
+            
+            // Masukkan ke dalam riwayat
+            historyStack.push(pageId);
+            
+            checkBottomNavVisibility(pageId);
+        }
+
+        // Fungsi untuk tombol 'Back' (Panah kiri atas)
+        function goBack() {
+            if (historyStack.length > 1) {
+                // Buang halaman saat ini dari riwayat
+                historyStack.pop();
+                
+                // Ambil halaman sebelumnya
+                const prevPageId = historyStack[historyStack.length - 1];
+                
+                // Sembunyikan semua halaman
+                const pages = document.querySelectorAll('.page');
+                pages.forEach(page => page.classList.remove('active'));
+                
+                // Tampilkan halaman sebelumnya
+                document.getElementById(prevPageId).classList.add('active');
+                
+                checkBottomNavVisibility(prevPageId);
+            }
+        }
+
+        // Fungsi khusus untuk klik Bottom Navigation
+        function navBottomClick(pageId, element) {
+            // Update styling aktif di navbar
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active-nav'));
+            element.classList.add('active-nav');
+            
+            // Reset riwayat navigasi karena ini tab utama
+            historyStack = [pageId];
+            goToPage(pageId);
+        }
+
+        // Fungsi untuk mengatur apakah Bottom Navigation muncul atau tidak
+        function checkBottomNavVisibility(pageId) {
+            const bottomNav = document.getElementById('bottom-navbar');
+            // Navigasi bawah hanya ada di 3 halaman utama
+            if (pageId === 'page-beranda' || pageId === 'page-daftar-pesanan' || pageId === 'page-profil') {
+                bottomNav.style.display = 'flex';
+            } else {
+                bottomNav.style.display = 'none'; // Sembunyikan saat masuk ke Restoran/Pembayaran
+            }
+        }
+    </script>
+</body>
+</html>
