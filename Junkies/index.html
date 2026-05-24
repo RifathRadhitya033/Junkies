@@ -3,265 +3,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Makanan Surplus</title>
+    <title>Bagian Tugas - Daftar & Atur Pesanan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS Reset & Dasar */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #e0e0e0; }
+        * {
+        font-family: 'Poppins', sans-serif !important;
+        }
+        /* CSS Reset & Variabel Warna sesuai Figma-mu */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'SF Pro Text', 'Segoe UI', Roboto, sans-serif; }
         
-        /* Container untuk mensimulasikan layar iPhone */
-        .mobile-container {
-            width: 390px;
-            height: 844px;
-            background-color: #fafafa;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border-radius: 40px;
-            overflow: hidden;
-            border: 8px solid #333;
+        /* Mengatur layar laptop agar HP posisinya pas di tengah */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #cccccc; /* Warna background di luar HP (bisa diganti) */
+            margin: 0;
+            font-family: 'Poppins', sans-serif; /* Sesuaikan dengan font Figma-mu */
         }
 
-        /* Styling Halaman */
+        /* Membentuk layar fisik iPhone 17 */
+        .iphone-container {
+            width: 393px;        /* Lebar standar iPhone 17 di Figma */
+            height: 852px;       /* Tinggi standar iPhone 17 di Figma */
+            background-color: #F8F5EB; /* Warna background krem/beige khas desainmu */
+            
+            /* Membuat efek fisik HP */
+            border: 12px solid #222222; /* Bezel hitam tebal pinggiran HP */
+            border-radius: 50px;        /* Sudut melengkung bulat khas iPhone */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3); /* Efek bayangan biar HP terlihat nyata */
+            
+            /* Pengaturan kerangka */
+            position: relative; 
+            overflow: hidden; /* SANGAT PENTING: Biar konten di dalam nggak keluar/nembus sudut lengkungnya */
+        }
+
+        /* Menambahkan Dynamic Island khas iPhone 17 */
+        .iphone-container::before {
+            content: '';
+            position: absolute;
+            top: 10px; /* Jarak dari atas bezel */
+            left: 50%;
+            transform: translateX(-50%); /* Trik agar posisinya pas di tengah-tengah */
+            width: 115px; /* Lebar kapsul */
+            height: 32px; /* Tinggi kapsul */
+            background-color: #000000; /* Warna hitam pekat */
+            border-radius: 25px; /* Membuat bentuknya oval/kapsul */
+            z-index: 999; /* SANGAT PENTING: Memastikan Dynamic Island selalu berada di lapisan paling depan (tidak tertutup elemen lain) */
+        }
+
+        /* Status Bar Atas (Jam & Icon) */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 28px 5px 28px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #7d7d7d;
+            background-color: #FAF8EE;
+        }
+
+        /* Halaman */
         .page {
-            display: none; /* Disembunyikan secara default */
-            height: 100%;
-            width: 100%;
+            display: none;
+            flex: 1;
             overflow-y: auto;
-            padding: 20px;
-            padding-bottom: 80px; /* Jarak untuk bottom nav */
-            background-color: #fdfaf6;
+            padding: 10px 20px;
+            padding-bottom: 90px; /* Ruang untuk tombol bawah */
         }
-        .page.active {
-            display: block; /* Ditampilkan saat aktif */
+        .page.active { display: flex; flex-direction: column; }
+
+        /* HEADER STYLING */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 10px 0 20px 0;
+        }
+        .header h1 { font-size: 18px; font-weight: bold; color: #111; }
+        .header h2 { font-size: 12px; color: #666; font-weight: normal; margin-top: 2px; }
+        .back-btn {
+            position: absolute;
+            left: 0;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #333;
         }
 
-        /* Utility Classes & Header */
-        .header { display: flex; align-items: center; margin-bottom: 20px; font-weight: bold; font-size: 18px;}
-        .back-btn { font-size: 20px; cursor: pointer; margin-right: 15px; background: none; border: none; font-weight: bold;}
-        .title-center { flex-grow: 1; text-align: center; }
-        
-        /* Komponen UI Spesifik (Disederhanakan untuk kerangka) */
-        .search-bar { background: #fce4e4; border-radius: 20px; padding: 10px; text-align: center; color: #d37a7a; margin-bottom: 15px; font-size: 12px;}
-        .promo-banner { background: linear-gradient(to right, #fbd3e9, #bbffed); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
-        .card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; gap: 15px;}
-        .card img { width: 60px; height: 60px; border-radius: 10px; background-color: #ddd; object-fit: cover;}
-        
-        .btn-primary { background: #a8d5ba; color: #333; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; text-align: center;}
-        
-        /* Bottom Navigation */
+        /* ==================== HALAMAN 1: DAFTAR PESANAN ==================== */
+        .tabs-container {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 10px;
+            border-radius: 0 0 15px 15px;
+            margin: -10px -20px 20px -20px;
+            border-bottom: 1px solid #EFECE2;
+            border-radius: 0px !important;
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05), 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+        .tab-item {
+            text-align: center;
+            font-size: 10px;
+            color: #8c92ac;
+            flex: 1;
+            cursor: pointer;
+        }
+        .tab-item.active {
+            color: #558B86;
+            font-weight: bold;
+        }
+        .tab-icon { font-size: 18px; margin-bottom: 4px; }
+
+        /* Kartu Pesanan */
+        .order-card {
+            background: white;
+            border-radius: 18px;
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            cursor: pointer;
+            border: 1px solid #EFECE2;
+            transition: transform 0.2s;
+        }
+        .order-card:active { transform: scale(0.98); }
+        .food-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            object-fit: cover;
+            background-color: #ddd;
+        }
+        .food-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .food-title { font-size: 14px; font-weight: bold; color: #111; }
+        .food-desc { font-size: 10px; color: #888; text-transform: uppercase; margin-top: 2px;}
+        .food-price { font-size: 12px; font-weight: bold; color: #222; margin-top: auto;}
+
+        /* FAB Refresh */
+        .fab-refresh {
+            position: absolute;
+            bottom: 95px;
+            right: 20px;
+            background-color: #558B86;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            box-shadow: 0 4px 10px rgba(85,139,134,0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Bottom Nav Bar */
+        /* Bottom Nav Bar - SUDAH DIPERBAIKI */
         .bottom-nav {
             position: absolute;
             bottom: 0;
+            left: 0; /* --- INI KUNCI PENYELAMATNYA SUPAYA DI TENGAH --- */
             width: 100%;
-            height: 70px;
+            height: 75px;
             background: white;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #EFECE2;
             display: flex;
-            justify-content: space-around;
+            justify-content: space-around; /* Membagi ruang antar ikon secara adil */
             align-items: center;
-            border-radius: 0 0 32px 32px;
+            padding-top: 6px;
+            padding-bottom: 0px;
+            box-sizing: border-box; /* Memastikan lebar tetap pas 100% layar iPhone */
         }
-        .nav-item { text-align: center; font-size: 12px; cursor: pointer; color: #888; flex: 1; padding: 10px;}
-        .nav-item.active-nav { color: #d37a7a; font-weight: bold; }
+
+        .nav-item { 
+            display: flex;
+            flex-direction: column; /* Membuat ikon dan teks tersusun vertikal ke bawah */
+            align-items: center;
+            justify-content: center;
+            text-align: center; 
+            font-size: 10px; 
+            color: #888; 
+            cursor: pointer; 
+            flex: 1; /* Membagi area klik tombol sama rata */
+        }
+
+        .nav-item.active { 
+            color: #f29999; /* Warna pink khas figma-mu saat aktif */
+            font-weight: bold; 
+        }
+
+        .nav-item img { 
+            margin-bottom: 4px; /* Memberi jarak tipis antara ikon dan teks di bawahnya */
+        }
+
+        /* ==================== HALAMAN 2: ATUR PESANAN ==================== */
+        .toggle-delivery {
+            display: flex;
+            background: #F3F1E7;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 15px;
+            border: 1px solid #DCD9CD;
+        }
+        .toggle-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            border: none;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-btn.active {
+            background: #558B86;
+            color: white;
+        }
+        .toggle-btn.inactive {
+            background: transparent;
+            color: #444;
+        }
+
+        /* Sections Card */
+        .section-card {
+            background: white;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #EFECE2;
+        }
+        .section-card.tinted { background: #B9D2CE; border: none; } /* Jam & Voucher */
+        
+        .card-icon { font-size: 24px; color: #558B86; }
+        .card-body-text { flex: 1; font-size: 11px; color: #333; line-height: 1.4; }
+        .card-body-text strong { font-size: 12px; color: #000; }
+        
+        .sub-link-btn {
+            background: #7DA6A1; color: white; border: none; 
+            padding: 6px 12px; border-radius: 20px; font-size: 10px; font-weight: bold;
+        }
+
+        .section-title-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 8px 0; font-size: 12px; font-weight: bold;
+        }
+
+        /* Stepper +/- */
+        .stepper {
+            display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 14px;
+        }
+        .step-btn {
+            width: 22px; height: 22px; border-radius: 50%; border: none;
+            background: #558B86; color: white; display: flex; align-items: center;
+            justify-content: center; font-weight: bold; cursor: pointer;
+        }
+
+        /* Rincian Harga */
+        .rincian-container { display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: #555; }
+        .rincian-row { display: flex; justify-content: space-between; }
+        .divider { border-top: 1px dashed #ccc; margin: 8px 0; }
+
+        /* Main Action Button di bawah */
+        .fixed-bottom-action {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+        }
+        .btn-pay {
+            background: #558B86;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(85,139,134,0.3);
+        }
     </style>
 </head>
 <body>
 
-    <div class="mobile-container">
-        
-        <div id="page-beranda" class="page active">
-            <div class="header" style="justify-content: center;">Beranda</div>
-            <div class="search-bar">Mau selamatkan produk apa hari ini?</div>
-            <div class="promo-banner">
-                <h3>PROMO MERIAH AKHIR PEKAN!</h3>
-                <p style="font-size: 12px; color: #555;">Diskon s.d 50%</p>
+    <div class="iphone-container">
+        <div class="status-bar">
+            <span>12.30</span>
+            <span style="display: flex; align-items: center; gap: 6px;">
+                <img src="assets/Icons/tabler_point-filled.svg" alt="Signal" style="height: 12px;">
+                <img src="assets/Icons/Wifi.svg" alt="WiFi" style="height: 12px;">
+                <img src="assets/Icons/Battery.svg" alt="Battery" style="height: 12px;">
+            </span>
+        </div>
+
+        <div id="page-daftar-pesanan" class="page active">
+            <div class="header">
+                <h1>Daftar Pesanan</h1>
             </div>
-            <h4 style="margin-bottom: 10px;">Disekitar Anda</h4>
-            <div class="card" onclick="goToPage('page-restoran')">
-                <img src="https://via.placeholder.com/60" alt="Roti">
-                <div>
-                    <strong>Roti Bakar 41</strong>
-                    <div style="font-size: 12px; color: #888;">Jatimulyo - Jarak 1.5 km</div>
+
+            <div class="tabs-container">
+                <div class="tab-item active">
+                    <img src="assets/Icons/Keranjang.svg" class="tab-icon" style="width: 24px; height: 24px;">
+                    <div>Belum Dibayar</div>
+                </div>
+                <div class="tab-item">
+                    <img src="assets/Icons/Troli.svg" class="tab-icon" style="width: 24px; height: 24px;">
+                    <div>Pesanan Aktif</div>
+                </div>
+                <div class="tab-item">
+                    <img src="assets/Icons/Belanja.svg" class="tab-icon" style="width: 24px; height: 24px;">
+                    <div>Pesanan Selesai</div>
+                </div>
+                <div class="tab-item">
+                    <img src="assets/Icons/Group.svg" class="tab-icon" style="width: 24px; height: 24px;">
+                    <div>Pesanan Batal</div>
+                </div>
+            </div>
+
+            <div class="order-card" onclick="navigateTo('page-atur-pesanan')">
+                <img src="assets/images/Roti Bakar Blueberry.png" alt="Roti Bakar Blueberry" class="food-img">
+                <div class="food-info">
+                    <div>
+                        <div class="food-title">Roti bakar selai blueberry</div>
+                        <div class="food-desc">ROTI+BLUEBERRY+SUSU</div>
+                    </div>
+                    <div class="food-price">Rp 16.000</div>
+                </div>
+            </div>
+
+            <button class="fab-refresh">
+                <img src="assets/Icons/Ulang (1).svg" alt="Refresh" style="width: 20px; height: 20px;">
+            </button>
+
+            <div class="bottom-nav">
+                <div class="nav-item">
+                    <img src="assets/Icons/Home.svg" alt="Beranda" style="width: 24px; height: 24px;"><br>Beranda
+                </div>
+                <div class="nav-item active">
+                    <img src="assets/Icons/Bag.svg" alt="Pesanan" style="width: 24px; height: 24px;"><br>Pesanan
+                </div>
+                <div class="nav-item">
+                    <img src="assets/Icons/Person.svg" alt="Profil" style="width: 24px; height: 24px;"><br>Profil
                 </div>
             </div>
         </div>
 
-        <div id="page-daftar-pesanan" class="page">
-            <div class="header">
-                <span class="title-center">Daftar Pesanan</span>
-            </div>
-            <div class="card" onclick="goToPage('page-atur-pesanan')">
-                <img src="https://via.placeholder.com/60" alt="Roti">
-                <div>
-                    <strong>Roti bakar selai blueberry</strong>
-                    <div style="font-size: 12px; color: #888;">Rp 16.000</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="page-profil" class="page">
-            <div class="header">
-                <span class="title-center">Profil</span>
-            </div>
-            <div class="card" style="background: #fdfaf6; border: 1px solid #eee;">
-                <div style="width: 50px; height: 50px; border-radius: 50%; background: #ccc;"></div>
-                <div>
-                    <strong>Justin Bieber</strong>
-                    <div style="font-size: 12px; color: #888;">Yuk, selamatkan lebih banyak makanan!</div>
-                </div>
-            </div>
-            <div style="background: #fce4e4; padding: 15px; border-radius: 15px; margin-top: 15px;">
-                <strong>Target bulan ini</strong>
-                <p style="font-size: 12px;">Selamatkan 10 item! (6/10)</p>
-            </div>
-        </div>
-
-        <div id="page-restoran" class="page">
-            <div class="header">
-                <button class="back-btn" onclick="goBack()">&#8592;</button>
-            </div>
-            <h2>Roti Bakar 41 - Jatimulyo</h2>
-            <p style="font-size: 12px; color: #888; margin-bottom: 20px;">⭐ 4.9 | Jarak 1.3 km</p>
-            
-            <h4 style="margin-bottom: 10px;">Menu</h4>
-            <div class="card" onclick="goToPage('page-atur-pesanan')">
-                <img src="https://via.placeholder.com/60" alt="Menu">
-                <div style="flex-grow: 1;">
-                    <strong>Roti bakar selai blueberry</strong>
-                    <div style="font-size: 12px; color: #888;">Rp 16.000</div>
-                </div>
-                <button style="border:none; background:#fce4e4; color:#d37a7a; border-radius:50%; width:25px; height:25px;">+</button>
-            </div>
-        </div>
 
         <div id="page-atur-pesanan" class="page">
-            <div class="header">
-                <button class="back-btn" onclick="goBack()">&#8592;</button>
-                <span class="title-center">Atur Pesanan</span>
+        <div class="header" style="flex-direction: column;">
+            <button class="back-btn" onclick="navigateTo('page-daftar-pesanan')" style="display: flex; align-items: center; justify-content: center;">
+                <img src="assets/Icons/Back.svg" alt="Kembali" style="width: 24px; height: 24px;">
+            </button>
+            <h1>Atur Pesanan</h1>
+            <h2>Roti Bakar 41 - Jatimulyo</h2>
+        </div>
+
+        <div class="toggle-delivery">
+            <button class="toggle-btn active" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <img src="assets/Icons/SB.svg" alt="Ambil Sendiri" style="width: 20px; height: 20px;">
+                Ambil Sendiri
+            </button>
+            <button class="toggle-btn inactive" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <img src="assets/Icons/Vespa.svg" alt="Diantar" style="width: 24px; height: 24px;">
+                Diantar
+            </button>
+        </div>
+
+        <div class="section-card">
+            <div class="card-icon">
+                <img src="assets/Icons/Lokasi.svg" alt="Lokasi" style="width: 24px; height: 24px;">
             </div>
+            <div class="card-body-text">
+                <strong>Lokasi Pengambilan</strong><br>
+                Jl. Dewandaru No.1, Kec. Lowokwaru, Kota Malang<br>
+                <span style="color:#558B86; font-weight:bold;">Jarak 0.8 km</span>
+            </div>
+            <img src="assets/Icons/Send.svg" alt="Buka Peta" style="width: 20px; height: 20px; cursor: pointer;">
+        </div>
+
+        <div class="section-card tinted">
+            <div class="card-icon">
+                <img src="assets/Icons/Calendar.svg" alt="Kalender" style="width: 24px; height: 24px;">
+            </div>
+            <div class="card-body-text">
+                <strong>Jam Pengambilan</strong><br>
+                Ambil Hari Ini <br>15.00 - 20.00
+            </div>
+            <button class="sub-link-btn">Pilih Jam ></button>
+        </div>
+
+        <div class="section-title-row">
+            <span>Pesananmu</span>
+            <span style="color: #558B86; cursor: pointer;">Tambah Menu Lain</span>
+        </div>
+
+        <div class="section-card">
+            <img src="assets/images/Roti Bakar Blueberry.png" alt="Roti Bakar" class="food-img" style="width:50px; height:50px; border-radius: 8px;">
             
-            <div class="card" style="background: #e8f4ec; justify-content: space-between;">
-                <strong>Ambil Sendiri</strong>
-                <strong style="color: #ccc;">Diantar</strong>
+            <div class="card-body-text">
+                <strong>Roti bakar selai blueberry</strong><br>
+                <span style="color:#222; font-weight:bold;">Rp 16.000</span>
             </div>
+            <div class="stepper">
+                <button class="step-btn">−</button>
+                <span>1</span>
+                <button class="step-btn">+</button>
+            </div>
+        </div>
 
-            <div class="card">
-                <div style="flex-grow: 1;">
-                    <strong>Roti bakar selai blueberry</strong>
-                    <div style="font-size: 12px; color: #888;">Rp 16.000</div>
+        <div class="section-card tinted">
+            <div class="card-icon">
+                <img src="assets/Icons/Voucher.svg" alt="Voucher" style="width: 24px; height: 24px;">
+            </div>
+            <div class="card-body-text">
+                <strong>Punya Voucher?</strong><br>
+                Gunakan Voucher untuk Lebih Hemat!
+            </div>
+            <button class="sub-link-btn" style="background:#558B86;">Voucher</button>
+        </div>
+
+        <div class="section-card" style="flex-direction: column; align-items: stretch;">
+            <strong style="font-size: 12px; margin-bottom: 5px;">Rincian Pesanan</strong>
+            <div class="rincian-container">
+                <div class="rincian-row">
+                    <span>Subtotal</span>
+                    <span>Rp16.000</span>
                 </div>
-            </div>
-
-            <div style="margin-top: 20px;">
-                <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px;">
+                <div class="rincian-row">
+                    <span>Biaya Layanan</span>
+                    <span>Rp2.900</span>
+                </div>
+                <div class="rincian-row">
+                    <span>Biaya Lainnya</span>
+                    <span>Rp1.900</span>
+                </div>
+                <div class="divider"></div>
+                <div class="rincian-row" style="font-weight: bold; color:#558B86; font-size:13px;">
                     <span>Total</span>
-                    <strong>Rp 20.800</strong>
+                    <span>Rp20.800</span>
                 </div>
-            </div>
-
-            <div style="position: absolute; bottom: 80px; left: 20px; right: 20px;">
-                <button class="btn-primary" onclick="goToPage('page-pembayaran')">Bayar Sekarang - 20.800</button>
             </div>
         </div>
 
-        <div id="page-pembayaran" class="page">
-            <div class="header">
-                <button class="back-btn" onclick="goBack()">&#8592;</button>
-                <span class="title-center">Pembayaran</span>
-            </div>
-            
-            <div class="card">
-                <div>
-                    <strong>Rinci Pesanan</strong>
-                    <p style="font-size: 12px;">Total: Rp 20.800</p>
-                </div>
-            </div>
-
-            <h4 style="margin: 15px 0 10px 0;">Metode Pembayaran</h4>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <div style="background: #fce4e4; padding: 10px; border-radius: 8px;">OVO</div>
-                <div style="background: #fce4e4; padding: 10px; border-radius: 8px;">DANA</div>
-                <div style="background: #fce4e4; padding: 10px; border-radius: 8px;">GOPAY</div>
-                <div style="background: #fce4e4; padding: 10px; border-radius: 8px;">QRIS</div>
-            </div>
-
-            <div style="position: absolute; bottom: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <div style="font-size: 12px;">TOTAL</div>
-                    <strong>Rp 20.800</strong>
-                </div>
-                <button class="btn-primary" style="width: auto; padding: 10px 30px;">BAYAR</button>
-            </div>
+        <div class="fixed-bottom-action">
+            <button class="btn-pay" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">
+                <img src="assets/Icons/SB.svg" alt="Aman" style="width: 18px; height: 18px;">
+                Bayar Sekarang - 20.800
+            </button>
         </div>
-
-        <div id="bottom-navbar" class="bottom-nav">
-            <div class="nav-item active-nav" onclick="navBottomClick('page-beranda', this)">🏠<br>Beranda</div>
-            <div class="nav-item" onclick="navBottomClick('page-daftar-pesanan', this)">🛍️<br>Pesanan</div>
-            <div class="nav-item" onclick="navBottomClick('page-profil', this)">👤<br>Profil</div>
-        </div>
-
     </div>
 
     <script>
-        // Array untuk menyimpan riwayat navigasi agar tombol 'back' berfungsi
-        let historyStack = ['page-beranda'];
-
-        // Fungsi utama untuk pindah halaman
-        function goToPage(pageId) {
-            // Sembunyikan semua halaman
-            const pages = document.querySelectorAll('.page');
-            pages.forEach(page => page.classList.remove('active'));
+        function navigateTo(pageId) {
+            // Sembunyikan semua page terlebih dahulu
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
             
-            // Tampilkan halaman tujuan
+            // Tampilkan page yang dituju
             document.getElementById(pageId).classList.add('active');
-            
-            // Masukkan ke dalam riwayat
-            historyStack.push(pageId);
-            
-            checkBottomNavVisibility(pageId);
-        }
-
-        // Fungsi untuk tombol 'Back' (Panah kiri atas)
-        function goBack() {
-            if (historyStack.length > 1) {
-                // Buang halaman saat ini dari riwayat
-                historyStack.pop();
-                
-                // Ambil halaman sebelumnya
-                const prevPageId = historyStack[historyStack.length - 1];
-                
-                // Sembunyikan semua halaman
-                const pages = document.querySelectorAll('.page');
-                pages.forEach(page => page.classList.remove('active'));
-                
-                // Tampilkan halaman sebelumnya
-                document.getElementById(prevPageId).classList.add('active');
-                
-                checkBottomNavVisibility(prevPageId);
-            }
-        }
-
-        // Fungsi khusus untuk klik Bottom Navigation
-        function navBottomClick(pageId, element) {
-            // Update styling aktif di navbar
-            const navItems = document.querySelectorAll('.nav-item');
-            navItems.forEach(item => item.classList.remove('active-nav'));
-            element.classList.add('active-nav');
-            
-            // Reset riwayat navigasi karena ini tab utama
-            historyStack = [pageId];
-            goToPage(pageId);
-        }
-
-        // Fungsi untuk mengatur apakah Bottom Navigation muncul atau tidak
-        function checkBottomNavVisibility(pageId) {
-            const bottomNav = document.getElementById('bottom-navbar');
-            // Navigasi bawah hanya ada di 3 halaman utama
-            if (pageId === 'page-beranda' || pageId === 'page-daftar-pesanan' || pageId === 'page-profil') {
-                bottomNav.style.display = 'flex';
-            } else {
-                bottomNav.style.display = 'none'; // Sembunyikan saat masuk ke Restoran/Pembayaran
-            }
         }
     </script>
 </body>
