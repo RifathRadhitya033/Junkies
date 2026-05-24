@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Makanan Surplus</title>
+    <style>
+        /* CSS Reset & Dasar */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #e0e0e0; }
+        
+        /* Container untuk mensimulasikan layar iPhone */
+        .mobile-container {
+            width: 390px;
+            height: 844px;
+            background-color: #fafafa;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 40px;
+            overflow: hidden;
+            border: 8px solid #333;
+        }
+
+        /* Styling Halaman */
+        .page {
+            display: none; /* Disembunyikan secara default */
+            height: 100%;
+            width: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 80px; /* Jarak untuk bottom nav */
+            background-color: #fdfaf6;
+        }
+        .page.active {
+            display: block; /* Ditampilkan saat aktif */
+        }
+
+        /* Utility Classes & Header */
+        .header { display: flex; align-items: center; margin-bottom: 20px; font-weight: bold; font-size: 18px;}
+        .back-btn { font-size: 20px; cursor: pointer; margin-right: 15px; background: none; border: none; font-weight: bold;}
+        .title-center { flex-grow: 1; text-align: center; }
+        
+        /* Komponen UI Spesifik (Disederhanakan untuk kerangka) */
+        .search-bar { background: #fce4e4; border-radius: 20px; padding: 10px; text-align: center; color: #d37a7a; margin-bottom: 15px; font-size: 12px;}
+        .promo-banner { background: linear-gradient(to right, #fbd3e9, #bbffed); border-radius: 15px; padding: 20px; margin-bottom: 20px; }
+        .card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; display: flex; align-items: center; gap: 15px;}
+        .card img { width: 60px; height: 60px; border-radius: 10px; background-color: #ddd; object-fit: cover;}
+        
+        .btn-primary { background: #a8d5ba; color: #333; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; text-align: center;}
+        
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 70px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-radius: 0 0 32px 32px;
+        }
+        .nav-item { text-align: center; font-size: 12px; cursor: pointer; color: #888; flex: 1; padding: 10px;}
+        .nav-item.active-nav { color: #d37a7a; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-container">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 24px 6px 24px; background-color: #FCF9EA; font-family: sans-serif; font-size: 14px; font-weight: 600; color: #888888; width: 100%; box-sizing: border-box; position: sticky; top: 0; z-index: 9999;">
+    <div style="color: #888888;">12.30</div>
+    
+    <div style="display: flex; align-items: center;">
+        
+        <div style="display: flex; gap: 4px; align-items: center; margin-right: 6px;">
+            <div style="width: 3.5px; height: 3.5px; background-color: #888888; border-radius: 50%;"></div>
+            <div style="width: 3.5px; height: 3.5px; background-color: #888888; border-radius: 50%;"></div>
+            <div style="width: 3.5px; height: 3.5px; background-color: #888888; border-radius: 50%;"></div>
+        </div>
+
+        <span style="filter: grayscale(100%); opacity: 0.5; font-size: 13px; display: flex; align-items: center; margin-right: 1px;">📶</span>
+        
+        <span style="filter: grayscale(100%); opacity: 0.5; font-size: 13px; display: flex; align-items: center;">🔋</span>
+    </div>
+</div>
+        
+        <div id="page-beranda" class="page active">
+            <div class="header" style="justify-content: center;">Beranda</div>
+            <div class="search-bar">Mau selamatkan produk apa hari ini?</div>
+            <div class="promo-banner">
+                <h3>PROMO MERIAH AKHIR PEKAN!</h3>
+                <p style="font-size: 12px; color: #555;">Diskon s.d 50%</p>
+            </div>
+            <h4 style="margin-bottom: 10px;">Disekitar Anda</h4>
+            <div class="card" onclick="goToPage('page-restoran')">
+                <img src="https://via.placeholder.com/60" alt="Roti">
+                <div>
+                    <strong>Roti Bakar 41</strong>
+                    <div style="font-size: 12px; color: #888;">Jatimulyo - Jarak 1.5 km</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-daftar-pesanan" class="page">
+            <div class="header">
+                <span class="title-center">Daftar Pesanan</span>
+            </div>
+            <div class="card" onclick="goToPage('page-atur-pesanan')">
+                <img src="https://via.placeholder.com/60" alt="Roti">
+                <div>
+                    <strong>Roti bakar selai blueberry</strong>
+                    <div style="font-size: 12px; color: #888;">Rp 16.000</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-profil" class="page">
+            <div class="header">
+                <span class="title-center">Profil</span>
+            </div>
+            <div class="card" style="background: #fdfaf6; border: 1px solid #eee;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: #ccc;"></div>
+                <div>
+                    <strong>Justin Bieber</strong>
+                    <div style="font-size: 12px; color: #888;">Yuk, selamatkan lebih banyak makanan!</div>
+                </div>
+            </div>
+            <div style="background: #fce4e4; padding: 15px; border-radius: 15px; margin-top: 15px;">
+                <strong>Target bulan ini</strong>
+                <p style="font-size: 12px;">Selamatkan 10 item! (6/10)</p>
+            </div>
+        </div>
+
+        <div id="page-restoran" class="page">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()">&#8592;</button>
+            </div>
+            <h2>Roti Bakar 41 - Jatimulyo</h2>
+            <p style="font-size: 12px; color: #888; margin-bottom: 20px;">⭐ 4.9 | Jarak 1.3 km</p>
+            
+            <h4 style="margin-bottom: 10px;">Menu</h4>
+            <div class="card" onclick="goToPage('page-atur-pesanan')">
+                <img src="https://via.placeholder.com/60" alt="Menu">
+                <div style="flex-grow: 1;">
+                    <strong>Roti bakar selai blueberry</strong>
+                    <div style="font-size: 12px; color: #888;">Rp 16.000</div>
+                </div>
+                <button style="border:none; background:#fce4e4; color:#d37a7a; border-radius:50%; width:25px; height:25px;">+</button>
+            </div>
+        </div>
+
+        <div id="page-atur-pesanan" class="page">
+            <div class="header">
+                <button class="back-btn" onclick="goBack()">&#8592;</button>
+                <span class="title-center">Atur Pesanan</span>
+            </div>
+            
+            <div class="card" style="background: #e8f4ec; justify-content: space-between;">
+                <strong>Ambil Sendiri</strong>
+                <strong style="color: #ccc;">Diantar</strong>
+            </div>
+
+            <div class="card">
+                <div style="flex-grow: 1;">
+                    <strong>Roti bakar selai blueberry</strong>
+                    <div style="font-size: 12px; color: #888;">Rp 16.000</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px;">
+                    <span>Total</span>
+                    <strong>Rp 20.800</strong>
+                </div>
+            </div>
+
+            <div style="position: absolute; bottom: 80px; left: 20px; right: 20px;">
+                <button class="btn-primary" onclick="goToPage('page-pembayaran')">Bayar Sekarang - 20.800</button>
+            </div>
+        </div>
+
+        <div id="page-pembayaran" class="page" style="background-color: #FCF9EA; padding: 0; margin: 0; height: 100%; display: flex; flex-direction: column; font-family: sans-serif; overflow: hidden; box-sizing: border-box; position: relative;">
+
+            <div class="pembayaran-header" style="padding: 15px 20px 10px 20px; display: flex; align-items: center; position: relative; background-color: #FCF9EA; flex-shrink: 0; min-height: 40px;">
+    <button class="back-btn" onclick="goBack()" style="font-size: 24px; background: none; border: none; cursor: pointer; color: #000000; position: absolute; left: 20px; z-index: 10;">&#8592;</button>
+    <span style="font-size: 20px; font-weight: bold; position: absolute; left: 50%; transform: translateX(-50%); color: #000000; white-space: nowrap;">Pembayaran</span>
+</div>
+
+    <div style="flex: 1; overflow-y: auto; padding: 10px 20px; scrollbar-width: none; -ms-overflow-style: none;">
+        
+        <div style="text-align: right; margin-bottom: 12px;">
+            <a href="#" style="color: #4A7A75; font-size: 13px; font-weight: bold; text-decoration: none;">Tambah Menu Lain</a>
+        </div>
+
+        <div style="background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 20px;">
+            <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 15px;">
+                <img src="assets/images/Roti Bakar Blueberry.png" alt="Roti Bakar Blueberry" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
+                <div style="flex-grow: 1; text-align: left;">
+                    <strong style="font-size: 14px; display: block; color: #000000;">Roti bakar selai blueberry</strong>
+                    <span style="font-size: 13px; color: #555; display: block; margin-top: 2px;">Rp 16.000</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px; justify-content: center;">
+                    <button onclick="(() => {
+                        let el = document.getElementById('angka-jumlah');
+                        let jm = parseInt(el.innerText);
+                        if(jm > 1) {
+                            jm--;
+                            el.innerText = jm;
+                            
+                            // Hitung matematika dasarnya
+                            let subtotal = jm * 16000;
+                            let totalAkhir = subtotal + 4800;
+
+                            // Ubah teks di layar sesuai target ID-nya masing-masing
+                            document.getElementById('teks-subtotal').innerText = 'Rp' + subtotal.toLocaleString('id-ID');
+                            document.getElementById('teks-total').innerText = 'Rp' + totalAkhir.toLocaleString('id-ID');
+                            document.getElementById('teks-total-bawah').innerText = 'Rp ' + totalAkhir.toLocaleString('id-ID');
+                        }
+                    })()" style="border: none; background: #BADFDB; color: #4A7A75; width: 26px; height: 26px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; padding: 0 0 3px 0; line-height: 1;">-</button>
+                    
+                    <span id="angka-jumlah" style="font-size: 16px; font-weight: bold; color: #333; min-width: 15px; text-align: center; display: inline-block; line-height: 1;">1</span>
+                    
+                    <button onclick="(() => {
+                        let el = document.getElementById('angka-jumlah');
+                        let jm = parseInt(el.innerText);
+                        jm++;
+                        el.innerText = jm;
+                        
+                        // Hitung matematika dasarnya
+                        let subtotal = jm * 16000;
+                        let totalAkhir = subtotal + 4800; // 4800 berasal dari (2900 + 1900)
+
+                        // Ubah teks di layar sesuai target ID-nya masing-masing
+                        document.getElementById('teks-subtotal').innerText = 'Rp' + subtotal.toLocaleString('id-ID');
+                        document.getElementById('teks-total').innerText = 'Rp' + totalAkhir.toLocaleString('id-ID');
+                        document.getElementById('teks-total-bawah').innerText = 'Rp ' + totalAkhir.toLocaleString('id-ID');
+                    })()" style="border: none; background: #BADFDB; color: #4A7A75; width: 26px; height: 26px; border-radius: 50%; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; padding: 0 0 3px 0; line-height: 1;">+</button>
+                </div>
+            </div>
+
+            <strong style="font-size: 14px; display: block; margin-bottom: 12px; color: #000000; text-align: left;">Rincian Pesanan</strong>
+            <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #333; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between;"><span>Subtotal</span><strong id="teks-subtotal">Rp16.000</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>Biaya Layanan</span><strong id="teks-biaya-layanan">Rp2.900</strong></div>
+                <div style="display: flex; justify-content: space-between;"><span>Biaya Lainnya</span><strong id="teks-biaya-lainnya">Rp1.900</strong></div>
+            </div>
+            <div style="border-top: 1px dashed #ddd; margin-bottom: 12px;"></div>
+            <div style="display: flex; justify-content: space-between; font-weight: bold; color: #4A7A75; font-size: 14px;">
+                <span>Total</span><span id="teks-total">Rp20.800</span>
+            </div>
+        </div>
+
+        <h4 style="color: #000000; margin-bottom: 12px; font-size: 15px; font-weight: bold; text-align: left;">Metode Pembayaran</h4>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+            
+            <div style="background: #FFBDBD; padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; font-weight: bold; font-size: 14px; color: #000000;">
+                <img src="assets/images/ovo belakang.png" alt="OVO" style="width: 24px; height: 24px; object-fit: contain; flex-shrink: 0;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span style="background: #4C2B85; border-radius: 50%; width: 24px; height: 24px; display: none; flex-shrink: 0; text-align: center; color: white; font-size: 10px; line-height: 24px;">O</span>
+                OVO
+            </div>
+            
+            <div style="background: #FFBDBD; padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; font-weight: bold; font-size: 14px; color: #000000;">
+                <img src="assets/images/Dana-logo.png" alt="DANA" style="width: 24px; height: 24px; object-fit: contain; flex-shrink: 0;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+                <span style="background: #108EE9; border-radius: 50%; width: 24px; height: 24px; display: none; flex-shrink: 0; text-align: center; color: white; font-size: 10px; line-height: 24px;">D</span>
+                DANA
+            </div>
+            
+            <div style="background: #FFBDBD; padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; font-weight: bold; font-size: 14px; color: #000000;">
+                <img src="assets/images/gopay1.png" alt="GOPAY" style="width: 24px; height: 24px; object-fit: contain; flex-shrink: 0;" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
+                
+                <span style="background: #00AED6; border-radius: 50%; width: 24px; height: 24px; display: none; flex-shrink: 0; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: bold;">G</span>
+                
+                GOPAY
+            </div>
+            
+            <div style="background: #FFBDBD; padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; font-weight: bold; font-size: 14px; color: #000000;">
+                <img src="assets/images/qriss baru.png" alt="QRIS" style="width: 24px; height: 24px; object-fit: contain; flex-shrink: 0;"> 
+                QRIS
+            </div>
+            
+            <div style="background: #FFBDBD; padding: 12px 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; font-weight: bold; font-size: 14px; color: #000000;">
+                <span style="font-size: 20px; display: inline-block; flex-shrink: 0; width: 24px; text-align: center;">🏦</span> 
+                TRANSFER BANK
+            </div>
+
+        </div>
+
+        <div style="background: white; border-radius: 8px; padding: 6px 12px; display: flex; gap: 6px; align-items: center; border: 1px solid #ffcccc; margin-bottom: 8px;">
+            <div style="color: #ff4d4d; font-size: 14px; font-weight: bold;">⚠️</div>
+            <p style="color: #ff4d4d; font-size: 10px; font-weight: 500; line-height: 1.4; text-align: left; margin: 0;">Pastikan saldo anda mencukupi untuk menyelesaikan pembayaran</p>
+        </div>
+
+    </div>
+
+
+    <div style="background: #FCF9EA; padding: 15px 20px 45px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e0dbb8; flex-shrink: 0; box-sizing: border-box; z-index: 10;">
+    <div style="text-align: left;">
+        <div style="font-size: 11px; color: #888; letter-spacing: 0.5px; font-weight: bold;">TOTAL</div>
+        
+        <strong id="teks-total-bawah" style="font-size: 20px; color: #000000; display: block; margin-top: 2px;">Rp 20.800</strong>
+        
+    </div>
+    <button style="background: #ccc; color: #666; border: none; padding: 12px 35px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: not-allowed; text-transform: uppercase;">Bayar</button>
+</div>
+
+</div>
+
+    <script>
+        // Array untuk menyimpan riwayat navigasi agar tombol 'back' berfungsi
+        let historyStack = ['page-beranda'];
+
+        // Fungsi utama untuk pindah halaman
+        function goToPage(pageId) {
+            // Sembunyikan semua halaman
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // Tampilkan halaman tujuan
+            document.getElementById(pageId).classList.add('active');
+            
+            // Masukkan ke dalam riwayat
+            historyStack.push(pageId);
+            
+            checkBottomNavVisibility(pageId);
+        }
+
+        // Fungsi untuk tombol 'Back' (Panah kiri atas)
+        function goBack() {
+            if (historyStack.length > 1) {
+                // Buang halaman saat ini dari riwayat
+                historyStack.pop();
+                
+                // Ambil halaman sebelumnya
+                const prevPageId = historyStack[historyStack.length - 1];
+                
+                // Sembunyikan semua halaman
+                const pages = document.querySelectorAll('.page');
+                pages.forEach(page => page.classList.remove('active'));
+                
+                // Tampilkan halaman sebelumnya
+                document.getElementById(prevPageId).classList.add('active');
+                
+                checkBottomNavVisibility(prevPageId);
+            }
+        }
+
+        // Fungsi khusus untuk klik Bottom Navigation
+        function navBottomClick(pageId, element) {
+            // Update styling aktif di navbar
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active-nav'));
+            element.classList.add('active-nav');
+            
+            // Reset riwayat navigasi karena ini tab utama
+            historyStack = [pageId];
+            goToPage(pageId);
+        }
+
+        // Fungsi untuk mengatur apakah Bottom Navigation muncul atau tidak
+        function checkBottomNavVisibility(pageId) {
+            const bottomNav = document.getElementById('bottom-navbar');
+            // Navigasi bawah hanya ada di 3 halaman utama
+            if (pageId === 'page-beranda' || pageId === 'page-daftar-pesanan' || pageId === 'page-profil') {
+                bottomNav.style.display = 'flex';
+            } else {
+                bottomNav.style.display = 'none'; // Sembunyikan saat masuk ke Restoran/Pembayaran
+            }
+        }
+
+        // Fungsi Kalkulasi Otomatis Total Pembayaran Halaman
+        function hitungTotalOtomatis() {
+            let angkaElement = document.querySelector('.jumlah-item');
+            if (!angkaElement) return;
+
+            let jumlah = parseInt(angkaElement.innerText);
+            let hargaSatuan = parseInt(angkaElement.getAttribute('data-harga')) || 16000;
+            
+            // Hitung rincian matematika barang
+            let subtotal = hargaSatuan * jumlah;
+            let biayaLayanan = 2900;
+            let biayaLainnya = 1900;
+            let totalAkhir = subtotal + biayaLayanan + biayaLainnya;
+
+            // Masukkan hasil hitungan ke element teks layar (mencari teks Rp secara spesifik)
+            // 1. Update Rincian Atas
+            document.querySelector('div[style*="flex-direction: column"] div:nth-child(1) strong').innerText = "Rp" + subtotal.toLocaleString('id-ID');
+            document.querySelector('div[style*="font-size: 14px"] span:nth-child(2)').innerText = "Rp" + totalAkhir.toLocaleString('id-ID');
+            
+            // 2. Update Kotak Menu Total Pembayaran Paling Bawah yang Kamu Naikin Tadi
+            document.querySelector('strong[style*="font-size: 20px"]').innerText = "Rp " + totalAkhir.toLocaleString('id-ID');
+        }
+
+        function tambahJumlah(button) {
+            let angkaElement = button.parentElement.querySelector('.jumlah-item');
+            let jumlahSekarang = parseInt(angkaElement.innerText);
+            angkaElement.innerText = jumlahSekarang + 1;
+            
+            // Jalankan kalkulator otomatis
+            hitungTotalOtomatis();
+        }
+
+        function kurangJumlah(button) {
+            let angkaElement = button.parentElement.querySelector('.jumlah-item');
+            let jumlahSekarang = parseInt(angkaElement.innerText);
+            
+            if (jumlahSekarang > 1) {
+                angkaElement.innerText = jumlahSekarang - 1;
+                
+                // Jalankan kalkulator otomatis
+                hitungTotalOtomatis();
+            }
+        }
+    </script>
+</body>
+</html>
